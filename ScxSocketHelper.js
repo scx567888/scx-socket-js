@@ -1,3 +1,6 @@
+import {HEART_BEAT_PING, HEART_BEAT_PONG} from "./ScxSocketFrameType.js";
+import {ScxSocketFrame} from "./ScxSocketFrame.js";
+
 /**
  * 生成 uuid
  * @returns {string}
@@ -35,6 +38,27 @@ function initConnectOptions(uri, protocols, clientID) {
     };
 }
 
+const HEART_BEAT_PING_FRAME = createHeartBeatPingFrame();
+const HEART_BEAT_PONG_FRAME = createHeartBeatPongFrame();
+
+function createHeartBeatPingFrame() {
+    let heartBeatFramePing = new ScxSocketFrame();
+    heartBeatFramePing.seq_id = 0;
+    heartBeatFramePing.type = HEART_BEAT_PING;
+    heartBeatFramePing.now = 0;
+    heartBeatFramePing.payload = "";
+    return heartBeatFramePing;
+}
+
+function createHeartBeatPongFrame() {
+    let heartBeatFramePong = new ScxSocketFrame();
+    heartBeatFramePong.seq_id = 0;
+    heartBeatFramePong.type = HEART_BEAT_PONG;
+    heartBeatFramePong.now = 0;
+    heartBeatFramePong.payload = "";
+    return heartBeatFramePong;
+}
+
 export {
     TEXT_ENCODER,
     TEXT_DECODER,
@@ -42,4 +66,6 @@ export {
     getUUID,
     getDelayed,
     initConnectOptions,
+    HEART_BEAT_PING_FRAME,
+    HEART_BEAT_PONG_FRAME
 };
