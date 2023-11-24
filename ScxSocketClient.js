@@ -1,4 +1,3 @@
-import {ScxSocketFrame} from "./ScxSocketFrame.js";
 import {getUUID, initConnectOptions} from "./ScxSocketHelper.js";
 import {ScxSocket} from "./ScxSocket.js";
 
@@ -31,7 +30,8 @@ class ScxSocketClient extends ScxSocket {
 
         this.webSocket.onopen = (o) => {
             this.bind(this.webSocket);
-            this.sendAllMessage();
+            this.resetHeartBeat();
+            this.sendAllMessageAsync();
             this.doOpen();
         };
 
@@ -46,13 +46,13 @@ class ScxSocketClient extends ScxSocket {
         }
     }
 
-    doCloseAndReconnect() {
-        this.doClose();
+    doClose(unused) {
+        super.doClose(unused);
         this.reconnect();
     }
 
-    doErrorAndReconnect(e) {
-        this.doError(e);
+    doError(e) {
+        super.doError(e);
         this.reconnect();
     }
 
@@ -68,23 +68,16 @@ class ScxSocketClient extends ScxSocket {
         }, 5000);
     }
 
-    bind(webSocket) {
-        this.webSocket = webSocket;
-        this.webSocket.onmessage = o => {
-            if (o.data instanceof ArrayBuffer) {
-                this.doMessage(ScxSocketFrame.fromBytes(o.data));
-            } else {
-                this.doMessage(ScxSocketFrame.fromJson(o.data));
-            }
-        };
-        this.webSocket.onclose = () => this.doCloseAndReconnect();
-        this.webSocket.onerror = () => this.doErrorAndReconnect();
-    }
-
     close() {
         this.cancelReconnect();
         this.removeBind();
         this.closeWebSocket();
+        this.cancelHeartBeat();
+    }
+
+    doHeartBeatFail() {
+        //心跳失败直接重连
+        this.connect();
     }
 
 }

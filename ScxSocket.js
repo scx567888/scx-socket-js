@@ -1,8 +1,9 @@
 import {DEFAULT_SEND_OPTIONS} from "./SendOptions.js";
 import {SendTask} from "./SendTask.js";
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
-import {ACK, MESSAGE, MESSAGE_NEED_ACK} from "./ScxSocketFrameType.js";
+import {ACK, HEART_BEAT_PING, HEART_BEAT_PONG, MESSAGE, MESSAGE_NEED_ACK} from "./ScxSocketFrameType.js";
 import {SeqIDClearTask} from "./SeqIDClearTask.js";
+import {HEART_BEAT_PING_FRAME, HEART_BEAT_PONG_FRAME} from "./ScxSocketHelper.js";
 
 class ScxSocket {
 
@@ -13,6 +14,8 @@ class ScxSocket {
     onClose;
     onError;
     webSocket;
+    heartBeatCloseTimeout;
+    heartBeatPingTimeout;
 
     constructor() {
         this.sendTaskMap = new Map();
@@ -70,9 +73,9 @@ class ScxSocket {
         this.webSocket = webSocket;
         this.webSocket.onmessage = o => {
             if (o.data instanceof ArrayBuffer) {
-                this.doMessage(ScxSocketFrame.fromBytes(o.data));
+                this.doSocketFrame(ScxSocketFrame.fromBytes(o.data));
             } else {
-                this.doMessage(ScxSocketFrame.fromJson(o.data));
+                this.doSocketFrame(ScxSocketFrame.fromJson(o.data));
             }
         };
         this.webSocket.onclose = () => this.doClose();
@@ -80,7 +83,7 @@ class ScxSocket {
     }
 
     removeBind() {
-        if (this.webSocket != null && !this.webSocket.isClosed()) {
+        if (this.webSocket != null) {
             this.webSocket.onmessage = null;
             this.webSocket.onclose = null;
             this.webSocket.onerror = null;
@@ -88,22 +91,24 @@ class ScxSocket {
     }
 
     closeWebSocket() {
-        if (this.webSocket != null && !this.webSocket.isClosed()) {
+        if (this.webSocket != null) {
             this.webSocket.close();
         }
     }
 
-    doMessage(socketFrame) {
+    doSocketFrame(socketFrame) {
+        //只要收到任何消息就重置 心跳 
+        this.resetHeartBeat();
         if (socketFrame.type === ACK) {
             this.doAck(socketFrame);
-            return;
-        }
-        if (socketFrame.type === MESSAGE_NEED_ACK) {
-            this.sendAck(socketFrame.seq_id);
-        }
-        //普通消息 直接调用消息消费者
-        if (this.onMessage != null && this.needMessage(socketFrame)) {
-            this.onMessage(socketFrame.payload);
+        } else if (socketFrame.type === MESSAGE_NEED_ACK) {
+            this.doMessageNeedAck(socketFrame);
+        } else if (socketFrame.type === MESSAGE) {
+            this.doMessage(socketFrame);
+        } else if (socketFrame.type === HEART_BEAT_PING) {
+            this.doHeartBeatPing(socketFrame);
+        } else if (socketFrame.type === HEART_BEAT_PONG) {
+            this.doHeartBeatPong(socketFrame);
         }
     }
 
@@ -111,7 +116,7 @@ class ScxSocket {
         //取消所有的 sendTask 任务
         this.cancelAllResend();
         if (this.onClose != null) {
-            this.onClose.accept(null);
+            this.onClose(null);
         }
     }
 
@@ -152,6 +157,68 @@ class ScxSocket {
         } else {
             return false;
         }
+    }
+
+    resetHeartBeat() {
+        this.cancelHeartBeat();
+        this.startHeartBeat();
+    }
+
+    /**
+     * 发送 心跳 5000 毫秒后收不到则关闭连接
+     */
+    startHeartBeat() {
+        this.heartBeatPingTimeout = setTimeout(() => this.startHeartBeatPing(), 5000);
+    }
+
+    startHeartBeatPing() {
+        this.sendHeartBeatPing();
+        this.heartBeatCloseTimeout = setTimeout(() => this.doHeartBeatFail(), 5000);
+    }
+
+    cancelHeartBeat() {
+        if (this.heartBeatPingTimeout != null) {
+            clearTimeout(this.heartBeatPingTimeout);
+            this.heartBeatPingTimeout = null;
+        }
+        if (this.heartBeatCloseTimeout != null) {
+            clearTimeout(this.heartBeatCloseTimeout);
+            this.heartBeatCloseTimeout = null;
+        }
+    }
+
+    /**
+     * 心跳连接失败后的操作
+     */
+    doHeartBeatFail() {
+        this.doClose(null);
+    }
+
+    doHeartBeatPong(socketFrame) {
+        //什么都不做
+    }
+
+    doHeartBeatPing(socketFrame) {
+        this.sendHeartBeatPong();
+    }
+
+    doMessageNeedAck(socketFrame) {
+        this.sendAck(socketFrame.seq_id);
+        this.doMessage(socketFrame);
+    }
+
+    doMessage(socketFrame) {
+        if (this.onMessage != null && this.needMessage(socketFrame)) {
+            this.onMessage(socketFrame.payload);
+        }
+    }
+
+    sendHeartBeatPing() {
+        this.webSocket.send(HEART_BEAT_PING_FRAME.toJson());
+    }
+
+    sendHeartBeatPong() {
+        this.webSocket.send(HEART_BEAT_PONG_FRAME.toJson());
     }
 
 }
