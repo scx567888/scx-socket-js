@@ -32,6 +32,7 @@ class ScxSocketClient extends ScxSocket {
             this.bind(this.webSocket);
             this.resetHeartBeat();
             this.sendAllMessageAsync();
+            this.startAllClearAsync();
             this.doOpen();
         };
 

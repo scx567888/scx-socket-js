@@ -115,6 +115,8 @@ class ScxSocket {
     doClose(v) {
         //取消所有的 sendTask 任务
         this.cancelAllResend();
+        this.cancelAllClear();
+        this.cancelHeartBeat();
         if (this.onClose != null) {
             this.onClose(null);
         }
@@ -123,6 +125,8 @@ class ScxSocket {
     doError(e) {
         //取消所有的 sendTask 任务
         this.cancelAllResend();
+        this.cancelAllClear();
+        this.cancelHeartBeat();
         if (this.onError != null) {
             this.onError.accept(e);
         }
@@ -219,6 +223,26 @@ class ScxSocket {
 
     sendHeartBeatPong() {
         this.webSocket.send(HEART_BEAT_PONG_FRAME.toJson());
+    }
+
+    startAllClear() {
+        for (let value of this.seqIDClearTaskMap.values()) {
+            value.startClearTask();
+        }
+    }
+
+    startAllClearAsync() {
+        setTimeout(() => this.startAllClear());
+    }
+
+    cancelAllClear() {
+        for (let value of this.seqIDClearTaskMap.values()) {
+            value.cancelClear();
+        }
+    }
+
+    cancelAllClearAsync() {
+        setTimeout(() => this.cancelAllClear());
     }
 
 }
