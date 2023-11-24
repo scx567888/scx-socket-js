@@ -67,5 +67,5 @@ export {
     getDelayed,
     initConnectOptions,
     HEART_BEAT_PING_FRAME,
-    HEART_BEAT_PONG_FRAME
+    HEART_BEAT_PONG_FRAME,
 };
