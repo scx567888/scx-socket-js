@@ -7,5 +7,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scx567888/scx-socket-js.git"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2"
   }
 }
