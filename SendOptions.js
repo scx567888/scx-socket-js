@@ -1,8 +1,7 @@
+//同步完成 23/12/01
 class SendOptions {
 
     needAck;
-
-    useJson;
 
     maxResendTimes;
 
@@ -12,9 +11,8 @@ class SendOptions {
 
     constructor() {
         this.needAck = true;
-        this.useJson = true;
         this.maxResendTimes = 3;
-        this.maxResendDelayed = 10000;
+        this.maxResendDelayed = 1000 * 10;
         this.giveUpIfReachMaxResendTimes = true;
     }
 
@@ -24,15 +22,6 @@ class SendOptions {
 
     setNeedAck(needAck) {
         this.needAck = needAck;
-        return this;
-    }
-
-    getUseJson() {
-        return this.useJson;
-    }
-
-    setUseJson(useJson) {
-        this.useJson = useJson;
         return this;
     }
 
