@@ -1,8 +1,8 @@
 import {SeqIDClearTask} from "./SeqIDClearTask.js";
 
+//同步完成 23/12/01
 class DuplicateFrameChecker {
-
-    Map;
+    
     seqIDClearTaskMap;
 
     /**
@@ -30,7 +30,7 @@ class DuplicateFrameChecker {
         let task = this.seqIDClearTaskMap.get(seqID);
         if (task == null) {
             let seqIDClearTask = new SeqIDClearTask(seqID, this);
-            this.seqIDClearTaskMap.put(seqID, seqIDClearTask);
+            this.seqIDClearTaskMap.set(seqID, seqIDClearTask);
             seqIDClearTask.start();
             return true;
         } else {

@@ -14,7 +14,7 @@ class ScxSocketBase {
         this.frameCreator = new FrameCreator();
     }
 
-    send1(content) {
+    send(content) {
         this.send0(this.frameCreator.createMessageFrame(content, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
     }
 
@@ -52,13 +52,13 @@ class ScxSocketBase {
 
     bind(webSocket) {
         this.webSocket = webSocket;
-        this.webSocket.onmessage = t => this.doSocketFrame(ScxSocketFrame.fromJson(t));
+        this.webSocket.onmessage = t => this.doSocketFrame(ScxSocketFrame.fromJson(t.data));
         this.webSocket.onclose = () => this.doClose();
         this.webSocket.onerror = () => this.doError();
     }
 
     removeBind() {
-        if (this.webSocket != null && !this.webSocket.isClosed()) {
+        if (this.webSocket != null) {
             this.webSocket.onmessage = null;
             this.webSocket.onclose = null;
             this.webSocket.onerror = null;
@@ -75,14 +75,15 @@ class ScxSocketBase {
         }
     }
 
+    //todo
     closeWebSocket() {
-        if (this.webSocket != null && !this.webSocket.isClosed()) {
-            this.webSocket.close();
+        if (this.webSocket != null) {
+            // this.webSocket.close();
         }
     }
 
     isClosed() {
-        return this.webSocket == null || this.webSocket.isClosed();
+        return this.webSocket == null || this.webSocket.readyState !== WebSocket.OPEN;
     }
 
     send0(socketFrame, options) {

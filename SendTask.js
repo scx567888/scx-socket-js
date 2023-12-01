@@ -17,7 +17,6 @@ class SendTask {
         this.sendTimes = 0;
     }
 
-
     start() {
         //当前 websocket 不可用
         if (this.scxSocket.isClosed()) {
@@ -28,7 +27,7 @@ class SendTask {
             return;
         }
         //超过最大发送次数
-        if (this.sendTimes.get() > this.options.getMaxResendTimes()) {
+        if (this.sendTimes > this.options.getMaxResendTimes()) {
             if (this.options.getGiveUpIfReachMaxResendTimes()) {
                 this.clear();
             }

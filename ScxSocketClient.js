@@ -1,60 +1,75 @@
 import {getUUID, initConnectOptions} from "./ScxSocketHelper.js";
-import {ScxSocket} from "./ScxSocket.js";
+import {PingPongManager} from "./PingPongManager.js";
+import {ScxSocketClientOptions} from "./ScxSocketClientOptions.js";
 
-class ScxSocketClient extends ScxSocket {
+class ScxSocketClient extends PingPongManager {
 
     connectOptions;
     clientID;
+    clientOptions;
+    reconnectTimeout;
+    connectFuture;
     onOpen;
 
-    constructor(url, protocols = []) {
-        super();
-        this.clientID = getUUID();
+
+    constructor(url, {protocols = [], clientID = getUUID(), clientOptions = new ScxSocketClientOptions()} = {}) {
+        super(clientOptions);
+        this.clientOptions = clientOptions;
+        this.clientID = clientID;
         this.connectOptions = initConnectOptions(url, protocols, this.clientID);
+    }
+
+    removeConnectFuture() {
+        if (this.connectFuture != null) {
+            this.connectFuture.onSuccess(null).onFailure(null);
+            this.connectFuture = null;
+        }
+    }
+
+    onOpen0(onOpen) {
+        this.onOpen = onOpen;
+        return this;
     }
 
     cancelReconnect() {
         if (this.reconnectTimeout != null) {
-            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout.cancel();
             this.reconnectTimeout = null;
         }
     }
 
     connect() {
+        // debugger
+        //当前已经存在一个连接中的任务
         if (this.webSocket != null && this.webSocket.readyState === WebSocket.CONNECTING) {
             return;
         }
+        //关闭上一次连接
         this.close();
         this.webSocket = new WebSocket(this.connectOptions.uri, this.connectOptions.protocols);
         this.webSocket.binaryType = "arraybuffer";
 
         this.webSocket.onopen = (o) => {
-            this.bind(this.webSocket);
-            this.resetHeartBeat();
-            this.sendAllMessageAsync();
-            this.startAllClearAsync();
+            this.start(this.webSocket);
             this.doOpen();
         };
-
-        this.webSocket.onerror = () => {
+        this.webSocket.onerror = (e) => {
             this.reconnect();
         };
     }
 
     doOpen() {
-        if (this.onOpen != null) {
-            this.onOpen(null);
-        }
+        this.callOnOpen(null);
     }
 
     doClose(unused) {
         super.doClose(unused);
-        this.reconnect();
+        this.connect();
     }
 
     doError(e) {
         super.doError(e);
-        this.reconnect();
+        this.connect();
     }
 
     reconnect() {
@@ -66,19 +81,34 @@ class ScxSocketClient extends ScxSocket {
         this.reconnectTimeout = setTimeout(() => {  //没连接上会一直重连，设置延迟为5000毫秒避免请求过多
             this.reconnectTimeout = null;
             this.connect();
-        }, 5000);
+        }, this.clientOptions.getReconnectTimeout());
     }
 
     close() {
+        this.removeConnectFuture();
         this.cancelReconnect();
-        this.removeBind();
-        this.closeWebSocket();
-        this.cancelHeartBeat();
+        super.close();
     }
 
-    doHeartBeatFail() {
+    clientID() {
+        return this.clientID;
+    }
+
+    doPingTimeout() {
         //心跳失败直接重连
         this.connect();
+    }
+
+    callOnOpen(v) {
+        if (this.onOpen != null) {
+            this.onOpen(v);
+        }
+    }
+
+    callOnOpenAsync(v) {
+        if (this.onOpen != null) {
+            Thread.ofVirtual().start(() => this.onOpen.accept(v));
+        }
     }
 
 }

@@ -21,15 +21,10 @@ class FrameCreator {
         return pongFrame;
     }
 
-    static createAckFrame(ack_id) {
+    static createAckFrame(ack_id,payload=null) {
         let ackFrame = new ScxSocketFrame();
         ackFrame.type = ACK;
         ackFrame.ack_id = ack_id;
-        return ackFrame;
-    }
-
-    static createAckFrame(ack_id, payload) {
-        let ackFrame = FrameCreator.createAckFrame(ack_id);
         ackFrame.payload = payload;
         return ackFrame;
     }
