@@ -1,5 +1,6 @@
-//同步完成 23/12/01
+//todo 同步完成 23/12/01
 class ScxSocketOptions {
+
     pingInterval;
 
     pingTimeout;
