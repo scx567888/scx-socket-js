@@ -11,7 +11,7 @@ class SeqIDClearTask {
 
     start() {
         this.cancel();
-        this.clearTimeout = setTimeout(() => this.clear(), checker.getSeqIDClearTimeout());
+        this.clearTimeout = setTimeout(() => this.clear(), this.checker.getSeqIDClearTimeout());
     }
 
     cancel() {
