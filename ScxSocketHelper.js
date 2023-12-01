@@ -1,3 +1,5 @@
+const SCX_SOCKET_CLIENT_ID_KEY = "scx-socket-client-id";
+
 /**
  * 生成 uuid
  * @returns {string}
@@ -8,12 +10,6 @@ function getUUID() {
     URL.revokeObjectURL(temp_url);
     return uuid.substring(uuid.lastIndexOf("/") + 1);
 }
-
-const TEXT_DECODER = new TextDecoder("utf-8");
-
-const TEXT_ENCODER = new TextEncoder();
-
-const SCX_SOCKET_CLIENT_ID_KEY = "scx-socket-client-id";
 
 /**
  * 根据次数获取延时时间
@@ -36,8 +32,6 @@ function initConnectOptions(uri, protocols, clientID) {
 }
 
 export {
-    TEXT_ENCODER,
-    TEXT_DECODER,
     SCX_SOCKET_CLIENT_ID_KEY,
     getUUID,
     getDelayed,
