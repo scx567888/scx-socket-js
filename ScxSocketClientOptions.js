@@ -1,6 +1,6 @@
 import {ScxSocketOptions} from "./ScxSocketOptions.js";
 
-//同步完成 23/12/01
+//todo 同步完成 23/12/01
 class ScxSocketClientOptions extends ScxSocketOptions {
 
     reconnectTimeout;
