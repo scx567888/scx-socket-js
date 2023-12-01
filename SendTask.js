@@ -1,8 +1,8 @@
 import {getDelayed} from "./ScxSocketHelper.js";
 
-//同步完成 23/12/01
+//todo 同步完成 23/12/01
 class SendTask {
-    
+
     socketFrame;
     options;
     scxSocket;
@@ -34,12 +34,12 @@ class SendTask {
             return;
         }
         //根据不同序列化配置发送不同消息
-        this.scxSocket.webSocket.send(this.socketFrame.toJson());
+        this.sendFuture = this.scxSocket.webSocket.send(this.socketFrame.toJson());
 
         let currentSendTime = this.sendTimes++;
         //当需要 ack 时 创建 重复发送 延时
         if (this.options.getNeedAck()) {
-            this.resendThread = setTimeout(()=>this.start(), Math.max(getDelayed(currentSendTime), this.options.getMaxResendDelayed()));
+            this.resendThread = setTimeout(() => this.start(), Math.max(getDelayed(currentSendTime), this.options.getMaxResendDelayed()));
         } else {
             this.clear();
         }
@@ -70,7 +70,9 @@ class SendTask {
     }
 
     removeConnectFuture() {
-        
+        if (this.sendFuture != null) {
+            this.sendFuture = null;
+        }
     }
 
 }
