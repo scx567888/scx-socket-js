@@ -1,28 +1,29 @@
+//todo 同步完成 23/12/01
 class SeqIDClearTask {
 
-    scxSocket;
+    checker;
     seqID;
     clearTimeout;
 
-    constructor(seqID, scxSocket) {
+    constructor(seqID, checker) {
         this.seqID = seqID;
-        this.scxSocket = scxSocket;
+        this.checker = checker;
     }
 
-    startClearTask() {
-        this.cancelClear();
-        this.clearTimeout = setTimeout(() => this.clear(), 1000 * 60 * 10);
+    start() {
+        this.cancel();
+        this.clearTimeout = setTimeout(() => this.clear(), this.checker.getSeqIDClearTimeout());
     }
 
-    clear() {
-        this.scxSocket.seqIDClearTaskMap.delete(this.seqID);
-    }
-
-    cancelClear() {
+    cancel() {
         if (this.clearTimeout != null) {
             clearTimeout(this.clearTimeout);
             this.clearTimeout = null;
         }
+    }
+
+    clear() {
+        this.checker.seqIDClearTaskMap.delete(this.seqID);
     }
 
 }

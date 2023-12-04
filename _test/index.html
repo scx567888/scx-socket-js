@@ -79,15 +79,22 @@
     }
 
     //创建 客户端
-    let c = new ScxSocketClient("ws://192.168.1.20:8990/test");
+    let c = new ScxSocketClient("ws://127.0.0.1:8990/test");
 
     let n = 0;
+
+    // for (let i = 0; i < 140; i++) {
+    //
+    //        for (let j = 0; j < 220; j++) {
+    //            c.send(n++ + "", new SendOptions().setNeedAck(true));
+    //        }
+    //    }
 
     c.onOpen = () => {
         console.log("open");
         setInterval(() => {
-            c.send(n++ + "", new SendOptions().setNeedAck(true));
-        }, 200);
+            c.send1(n++ + "", new SendOptions().setNeedAck(true));
+        }, 1);
         // for (let i = 0; i < 140; i++) {
         //       
         //        for (let j = 0; j < 220; j++) {
@@ -117,6 +124,8 @@
     btn2.addEventListener("click", () => {
         c.close();
     });
+
+    c.connect();
 
 </script>
 </body>
