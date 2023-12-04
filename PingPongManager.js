@@ -2,6 +2,7 @@ import {ScxSocket} from "./ScxSocket.js";
 import {PING, PONG} from "./ScxSocketFrameType.js";
 import {PING_FRAME, PONG_FRAME} from "./FrameCreator.js";
 
+//todo 同步完成
 class PingPongManager extends ScxSocket {
 
     ping;
@@ -77,12 +78,12 @@ class PingPongManager extends ScxSocket {
 
     doPing(socketFrame) {
         this.sendPong();
-        console.warn( "收到 ping");
+        console.warn("收到 ping");
     }
 
     doPong(socketFrame) {
         //什么都不做
-        console.warn( "收到 pong");
+        console.warn("收到 pong");
     }
 
     doPingTimeout() {

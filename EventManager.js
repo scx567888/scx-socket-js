@@ -1,7 +1,7 @@
 import {ScxSocketBase} from "./ScxSocketBase.js";
 import {DuplicateFrameChecker} from "./DuplicateFrameChecker.js";
 
-//同步完成 23/12/01
+//todo 同步完成 23/12/01
 class EventManager extends ScxSocketBase {
 
     duplicateFrameChecker;

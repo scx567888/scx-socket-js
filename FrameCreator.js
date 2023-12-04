@@ -1,6 +1,7 @@
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 import {ACK, MESSAGE, PING, PONG, RESPONSE} from "./ScxSocketFrameType.js";
 
+//todo 同步完成
 class FrameCreator {
 
     seqID;
@@ -21,7 +22,7 @@ class FrameCreator {
         return pongFrame;
     }
 
-    static createAckFrame(ack_id,payload=null) {
+    static createAckFrame(ack_id, payload = null) {
         let ackFrame = new ScxSocketFrame();
         ackFrame.type = ACK;
         ackFrame.ack_id = ack_id;
