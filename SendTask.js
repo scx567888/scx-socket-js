@@ -34,7 +34,8 @@ class SendTask {
             return;
         }
         //根据不同序列化配置发送不同消息
-        this.sendFuture = this.scxSocket.webSocket.send(this.socketFrame.toJson());
+        this.sendFuture = null;
+        this.scxSocket.webSocket.send(this.socketFrame.toJson());
 
         let currentSendTime = this.sendTimes++;
         //当需要 ack 时 创建 重复发送 延时

@@ -93,7 +93,7 @@
     c.onOpen = () => {
         console.log("open");
         setInterval(() => {
-            c.send(n++ + "", new SendOptions().setNeedAck(true));
+            c.send1(n++ + "", new SendOptions().setNeedAck(true));
         }, 1);
         // for (let i = 0; i < 140; i++) {
         //       

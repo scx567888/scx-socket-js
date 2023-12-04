@@ -11,7 +11,6 @@ class ScxSocketClient extends PingPongManager {
     connectFuture;
     onOpen;
 
-
     constructor(url, {protocols = [], clientID = getUUID(), clientOptions = new ScxSocketClientOptions()} = {}) {
         super(clientOptions);
         this.clientOptions = clientOptions;
@@ -20,9 +19,10 @@ class ScxSocketClient extends PingPongManager {
     }
 
     removeConnectFuture() {
-        if (this.connectFuture != null) {
-            this.connectFuture.onSuccess(null).onFailure(null);
-            this.connectFuture = null;
+        if (this.webSocket != null) {
+            this.webSocket.onopen = null;
+            this.webSocket.onerror = null;
+            this.webSocket = null;
         }
     }
 
@@ -33,13 +33,12 @@ class ScxSocketClient extends PingPongManager {
 
     cancelReconnect() {
         if (this.reconnectTimeout != null) {
-            this.reconnectTimeout.cancel();
+            clearTimeout(this.reconnectTimeout);
             this.reconnectTimeout = null;
         }
     }
 
     connect() {
-        // debugger
         //当前已经存在一个连接中的任务
         if (this.webSocket != null && this.webSocket.readyState === WebSocket.CONNECTING) {
             return;
@@ -90,7 +89,7 @@ class ScxSocketClient extends PingPongManager {
         super.close();
     }
 
-    clientID() {
+    clientID0() {
         return this.clientID;
     }
 
@@ -107,7 +106,7 @@ class ScxSocketClient extends PingPongManager {
 
     callOnOpenAsync(v) {
         if (this.onOpen != null) {
-            Thread.ofVirtual().start(() => this.onOpen.accept(v));
+            setTimeout(() => this.onOpen(v));
         }
     }
 
