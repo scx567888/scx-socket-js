@@ -10,32 +10,30 @@ class ScxSocket extends EventManager {
         this.sendTaskMap = new Map();
     }
 
-    send0(socketFrame, options) {
+    send(socketFrame, options) {
         let sendTask = new SendTask(socketFrame, options, this);
         this.sendTaskMap.set(socketFrame.seq_id, sendTask);
         sendTask.start();
     }
 
     startAllSendTask() {
-        for (let value of this.sendTaskMap.values())
-        {
+        for (let value of this.sendTaskMap.values()) {
             value.start();
         }
     }
 
     cancelAllResendTask() {
-        for (let value of  this.sendTaskMap.values())
-        {
+        for (let value of this.sendTaskMap.values()) {
             value.cancelResend();
         }
     }
 
     startAllSendTaskAsync() {
-        setTimeout(()=>this.startAllSendTask());
+        setTimeout(() => this.startAllSendTask());
     }
 
     cancelAllResendTaskAsync() {
-        setTimeout(()=>this.cancelAllResendTask());
+        setTimeout(() => this.cancelAllResendTask());
     }
 
 
