@@ -39,7 +39,7 @@ class ScxSocketOptions {
         this.seqIDClearTimeout = seqIDClearTimeout;
         return this;
     }
-    
+
 }
 
 export {ScxSocketOptions};
