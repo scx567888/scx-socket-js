@@ -55,7 +55,7 @@ class EventManager extends ScxSocketBase {
 
     callOnMessage(message) {
         if (this.onMessage != null) {
-            this.onMessage.accept(message);
+            this.onMessage(message);
         }
     }
 
@@ -67,25 +67,25 @@ class EventManager extends ScxSocketBase {
 
     callOnError(e) {
         if (this.onError != null) {
-            this.onError.accept(e);
+            this.onError(e);
         }
     }
 
     callOnMessageAsync(message) {
         if (this.onMessage != null) {
-            Thread.ofVirtual().start(() => this.onMessage.accept(message));
+            setTimeout(() => this.onMessage(message));
         }
     }
 
     callOnCloseAsync(v) {
         if (this.onClose != null) {
-            Thread.ofVirtual().start(() => this.onClose.accept(v));
+            setTimeout(() => this.onClose(v));
         }
     }
 
     callOnErrorAsync(e) {
         if (this.onError != null) {
-            Thread.ofVirtual().start(() => this.onError.accept(e));
+            setTimeout(() => this.onError(e));
         }
     }
 
@@ -96,27 +96,25 @@ class EventManager extends ScxSocketBase {
     }
 
     callOnEventWithCheckDuplicateAsync(socketFrame) {
-        var eventHandler = this.eventHandlerMap.get(socketFrame.event_name);
-        if (eventHandler != null && duplicateFrameChecker.checkDuplicate(socketFrame)) {
-            Thread.ofVirtual().start(() => {
+        let eventHandler = this.eventHandlerMap.get(socketFrame.event_name);
+        if (eventHandler != null && this.duplicateFrameChecker.checkDuplicate(socketFrame)) {
+            setTimeout(() => {
                 if (eventHandler.type === 0) {
-                    var event0 = eventHandler.event0();
+                    let event0 = eventHandler.event0();
                     event0.accept(socketFrame.payload);
                     if (socketFrame.need_response) {
-                        sendResponse(socketFrame.seq_id, null);
+                        this.sendResponse(socketFrame.seq_id, null);
                     }
                 } else if (eventHandler.type === 1) {
-
-                    var event1 = eventHandler.event1();
-                    var responseData = event1.apply(socketFrame.payload);
+                    let event1 = eventHandler.event1();
+                    let responseData = event1.apply(socketFrame.payload);
                     if (socketFrame.need_response) {
-                        sendResponse(socketFrame.seq_id, responseData);
+                        this.sendResponse(socketFrame.seq_id, responseData);
                     }
                 } else if (eventHandler.type === 2) {
-
-                    var event2 = eventHandler.event2();
+                    let event2 = eventHandler.event2();
                     if (socketFrame.need_response) {
-                        var scxSocketRequest = new ScxSocketRequest(this, socketFrame.seq_id);
+                        let scxSocketRequest = new ScxSocketRequest(this, socketFrame.seq_id);
                         event2.accept(socketFrame.payload, scxSocketRequest);
                     } else {
                         event2.accept(socketFrame.payload, null);
@@ -128,20 +126,20 @@ class EventManager extends ScxSocketBase {
 
 
     setResponseCallback(socketFrame, responseCallback) {
-        this.responseCallbackMap.put(socketFrame.seq_id, responseCallback);
+        this.responseCallbackMap.set(socketFrame.seq_id, responseCallback);
     }
 
     callResponseCallback(socketFrame) {
-        var responseCallback = this.responseCallbackMap.remove(socketFrame.ack_id);
+        let responseCallback = this.responseCallbackMap.delete(socketFrame.ack_id);
         if (responseCallback != null) {
             responseCallback.accept(socketFrame.payload);
         }
     }
 
     callResponseCallbackAsync(socketFrame) {
-        var responseCallback = this.responseCallbackMap.remove(socketFrame.ack_id);
+        let responseCallback = this.responseCallbackMap.remove(socketFrame.ack_id);
         if (responseCallback != null) {
-            Thread.ofVirtual().start(() => responseCallback.accept(socketFrame.payload));
+            setTimeout(() => responseCallback.accept(socketFrame.payload));
         }
     }
 
