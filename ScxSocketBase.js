@@ -3,6 +3,7 @@ import {DEFAULT_SEND_OPTIONS} from "./SendOptions.js";
 import {ACK, MESSAGE, RESPONSE} from "./ScxSocketFrameType.js";
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 
+//todo 同步完成
 class ScxSocketBase {
 
     options;
@@ -14,47 +15,48 @@ class ScxSocketBase {
         this.frameCreator = new FrameCreator();
     }
 
-    send(content) {
-        this.send0(this.frameCreator.createMessageFrame(content, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
+    send0(content) {
+        this.send(this.frameCreator.createMessageFrame(content, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
     }
 
-    send2(content, options) {
-        this.send0(this.frameCreator.createMessageFrame(content, options), options);
+    send1(content, options) {
+        this.send(this.frameCreator.createMessageFrame(content, options), options);
     }
 
     sendEvent0(eventName, data) {
-        this.send0(this.frameCreator.createEventFrame(eventName, data, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
+        this.send(this.frameCreator.createEventFrame(eventName, data, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
     }
 
     sendEvent1(eventName, data, options) {
-        this.send0(this.frameCreator.createEventFrame(eventName, data, options), options);
+        this.send(this.frameCreator.createEventFrame(eventName, data, options), options);
     }
 
     sendEvent2(eventName, data, responseCallback) {
         let eventFrame = this.frameCreator.createRequestFrame(eventName, data, DEFAULT_SEND_OPTIONS);
         this.setResponseCallback(eventFrame, responseCallback);
-        this.send0(eventFrame, DEFAULT_SEND_OPTIONS);
+        this.send(eventFrame, DEFAULT_SEND_OPTIONS);
     }
 
     sendEvent3(eventName, data, responseCallback, options) {
         let eventFrame = this.frameCreator.createRequestFrame(eventName, data, options);
         this.setResponseCallback(eventFrame, responseCallback);
-        this.send0(eventFrame, options);
+        this.send(eventFrame, options);
     }
 
     sendResponse(ack_id, responseData) {
-        this.send0(this.frameCreator.createResponseFrame(ack_id, responseData, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
+        this.send(this.frameCreator.createResponseFrame(ack_id, responseData, DEFAULT_SEND_OPTIONS), DEFAULT_SEND_OPTIONS);
     }
 
     sendAck(ack_id) {
-        this.webSocket.send(FrameCreator.createAckFrame(ack_id).toJson());
+        let ackFrame= FrameCreator.createAckFrame(ack_id);
+        this.webSocket.send(ackFrame.toJson());
     }
 
     bind(webSocket) {
         this.webSocket = webSocket;
-        this.webSocket.onmessage = t => this.doSocketFrame(ScxSocketFrame.fromJson(t.data));
-        this.webSocket.onclose = () => this.doClose();
-        this.webSocket.onerror = () => this.doError();
+        this.webSocket.onmessage = (t) => this.doSocketFrame(ScxSocketFrame.fromJson(t.data));
+        this.webSocket.onclose = (v) => this.doClose(v);
+        this.webSocket.onerror = (e) => this.doError(e);
     }
 
     removeBind() {
@@ -77,16 +79,16 @@ class ScxSocketBase {
 
     //todo
     closeWebSocket() {
-        if (this.webSocket != null) {
-            // this.webSocket.close();
+        if (this.webSocket != null && this.webSocket.readyState !== WebSocket.CLOSED) {
+            this.webSocket.close();
         }
     }
 
     isClosed() {
-        return this.webSocket == null || this.webSocket.readyState !== WebSocket.OPEN;
+        return this.webSocket == null || this.webSocket.readyState === WebSocket.CLOSED;
     }
 
-    send0(socketFrame, options) {
+    send(socketFrame, options) {
     }
 
     setResponseCallback(socketFrame, responseCallback) {
