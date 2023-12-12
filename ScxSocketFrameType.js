@@ -1,11 +1,10 @@
-//todo 同步完成 23/12/01
 /**
- * 消息 (无需 ACK)
+ * 消息
  */
 const MESSAGE = 0;
 
 /**
- * 消息 (需要 ACK)
+ * 响应
  */
 const RESPONSE = 1;
 
@@ -24,4 +23,10 @@ const PING = 3;
  */
 const PONG = 4;
 
-export {MESSAGE, RESPONSE, ACK, PING, PONG};
+export {
+    MESSAGE,
+    RESPONSE,
+    ACK,
+    PING,
+    PONG,
+};
