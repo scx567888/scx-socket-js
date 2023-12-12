@@ -2,7 +2,6 @@ import {ScxSocket} from "./ScxSocket.js";
 import {PING, PONG} from "./ScxSocketFrameType.js";
 import {PING_FRAME, PONG_FRAME} from "./FrameCreator.js";
 
-//todo 同步完成
 class PingPongManager extends ScxSocket {
 
     ping;
@@ -69,7 +68,7 @@ class PingPongManager extends ScxSocket {
     }
 
     sendPing() {
-        return this.webSocket.send(PING_FRAME.toJson());
+        this.webSocket.send(PING_FRAME.toJson());
     }
 
     sendPong() {
