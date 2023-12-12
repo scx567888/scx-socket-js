@@ -1,4 +1,3 @@
-//todo 同步完成 23/12/01
 class SendOptions {
 
     needAck;
@@ -57,5 +56,6 @@ class SendOptions {
 const DEFAULT_SEND_OPTIONS = new SendOptions();
 
 export {
-    SendOptions, DEFAULT_SEND_OPTIONS,
+    SendOptions,
+    DEFAULT_SEND_OPTIONS,
 };
