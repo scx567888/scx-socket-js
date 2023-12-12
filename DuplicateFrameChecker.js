@@ -1,6 +1,5 @@
 import {SeqIDClearTask} from "./SeqIDClearTask.js";
 
-//todo 同步完成 23/12/01
 class DuplicateFrameChecker {
 
     seqIDClearTaskMap;
@@ -26,11 +25,11 @@ class DuplicateFrameChecker {
         if (!socketFrame.need_ack) {
             return true;
         }
-        let seqID = socketFrame.seq_id;
-        let task = this.seqIDClearTaskMap.get(seqID);
+        let key = socketFrame.seq_id + "_" + socketFrame.now;
+        let task = this.seqIDClearTaskMap.get(key);
         if (task == null) {
-            let seqIDClearTask = new SeqIDClearTask(seqID, this);
-            this.seqIDClearTaskMap.set(seqID, seqIDClearTask);
+            let seqIDClearTask = new SeqIDClearTask(key, this);
+            this.seqIDClearTaskMap.set(key, seqIDClearTask);
             seqIDClearTask.start();
             return true;
         } else {
@@ -55,7 +54,7 @@ class DuplicateFrameChecker {
     }
 
     cancelAllClearTaskAsync() {
-        setTimeout(() => this.cancelAllClearTaskAsync());
+        setTimeout(() => this.cancelAllClearTask());
     }
 
     getSeqIDClearTimeout() {
