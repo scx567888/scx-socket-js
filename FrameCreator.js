@@ -1,7 +1,6 @@
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 import {ACK, MESSAGE, PING, PONG, RESPONSE} from "./ScxSocketFrameType.js";
 
-//todo 同步完成
 class FrameCreator {
 
     seqID;
@@ -69,4 +68,8 @@ class FrameCreator {
 const PING_FRAME = FrameCreator.createPingFrame();
 const PONG_FRAME = FrameCreator.createPongFrame();
 
-export {FrameCreator, PING_FRAME, PONG_FRAME};
+export {
+    FrameCreator,
+    PING_FRAME,
+    PONG_FRAME,
+};
