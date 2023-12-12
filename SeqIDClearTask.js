@@ -1,12 +1,11 @@
-//todo 同步完成 23/12/01
 class SeqIDClearTask {
 
     checker;
-    seqID;
+    key;
     clearTimeout;
 
-    constructor(seqID, checker) {
-        this.seqID = seqID;
+    constructor(key, checker) {
+        this.key = key;
         this.checker = checker;
     }
 
@@ -23,7 +22,7 @@ class SeqIDClearTask {
     }
 
     clear() {
-        this.checker.seqIDClearTaskMap.delete(this.seqID);
+        this.checker.seqIDClearTaskMap.delete(this.key);
     }
 
 }
