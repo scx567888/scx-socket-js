@@ -3,7 +3,7 @@ import {DEFAULT_SEND_OPTIONS} from "./SendOptions.js";
 import {ACK, MESSAGE, RESPONSE} from "./ScxSocketFrameType.js";
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 
-//todo 同步完成
+//todo 方法重载待处理
 class ScxSocketBase {
 
     options;
@@ -77,7 +77,6 @@ class ScxSocketBase {
         }
     }
 
-    //todo
     closeWebSocket() {
         if (this.webSocket != null && this.webSocket.readyState !== WebSocket.CLOSED) {
             this.webSocket.close();
