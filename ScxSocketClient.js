@@ -100,13 +100,13 @@ class ScxSocketClient extends PingPongManager {
 
     callOnOpen(v) {
         if (this.#onOpen != null) {
-            this.onOpen(v);
+            this.#onOpen(v);
         }
     }
 
     callOnOpenAsync(v) {
         if (this.#onOpen != null) {
-            setTimeout(() => this.onOpen(v));
+            setTimeout(() => this.#onOpen(v));
         }
     }
 
