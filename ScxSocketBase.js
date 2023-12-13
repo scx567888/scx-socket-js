@@ -3,7 +3,6 @@ import {DEFAULT_SEND_OPTIONS} from "./SendOptions.js";
 import {ACK, MESSAGE, RESPONSE} from "./ScxSocketFrameType.js";
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 
-//todo 方法重载待处理
 class ScxSocketBase {
 
     options;
@@ -49,7 +48,11 @@ class ScxSocketBase {
 
     sendAck(ack_id) {
         let ackFrame = FrameCreator.createAckFrame(ack_id);
-        this.webSocket.send(ackFrame.toJson());
+        try {
+            this.webSocket.send(ackFrame.toJson());
+        } catch (e) {
+            //todo 忽略错误
+        }
     }
 
     bind(webSocket) {

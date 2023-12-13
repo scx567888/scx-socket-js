@@ -79,34 +79,13 @@ class EventManager extends ScxSocketBase {
         }
     }
 
-    /**
-     * todo
-     * @param socketFrame
-     */
     callOnEventWithCheckDuplicateAsync(socketFrame) {
         let eventHandler = this.#eventHandlerMap.get(socketFrame.event_name);
         if (eventHandler != null && this.duplicateFrameChecker.checkDuplicate(socketFrame)) {
             setTimeout(() => {
-                if (eventHandler.type === 0) {
-                    let event0 = eventHandler.event0();
-                    event0.accept(socketFrame.payload);
-                    if (socketFrame.need_response) {
-                        this.sendResponse(socketFrame.seq_id, null);
-                    }
-                } else if (eventHandler.type === 1) {
-                    let event1 = eventHandler.event1();
-                    let responseData = event1.apply(socketFrame.payload);
-                    if (socketFrame.need_response) {
-                        this.sendResponse(socketFrame.seq_id, responseData);
-                    }
-                } else if (eventHandler.type === 2) {
-                    let event2 = eventHandler.event2();
-                    if (socketFrame.need_response) {
-                        let scxSocketRequest = new ScxSocketRequest(this, socketFrame.seq_id);
-                        event2.accept(socketFrame.payload, scxSocketRequest);
-                    } else {
-                        event2.accept(socketFrame.payload, null);
-                    }
+                let responseData = eventHandler(socketFrame.payload);
+                if (socketFrame.need_response) {
+                    this.sendResponse(socketFrame.seq_id, responseData);
                 }
             });
         }
