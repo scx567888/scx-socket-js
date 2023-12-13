@@ -4,18 +4,18 @@ import {ScxSocketClientOptions} from "./ScxSocketClientOptions.js";
 
 class ScxSocketClient extends PingPongManager {
 
-    connectOptions;
-    clientID;
-    clientOptions;
-    reconnectTimeout;
-    connectFuture;
-    onOpen;
+    #connectOptions;
+    #clientID;
+    #clientOptions;
+    #reconnectTimeout;
+    #connectFuture;
+    #onOpen;
 
     constructor(url, {protocols = [], clientID = getUUID(), clientOptions = new ScxSocketClientOptions()} = {}) {
         super(clientOptions);
-        this.clientOptions = clientOptions;
-        this.clientID = clientID;
-        this.connectOptions = initConnectOptions(url, protocols, this.clientID);
+        this.#clientOptions = clientOptions;
+        this.#clientID = clientID;
+        this.#connectOptions = initConnectOptions(url, protocols, this.#clientID);
     }
 
     removeConnectFuture() {
@@ -26,15 +26,15 @@ class ScxSocketClient extends PingPongManager {
         }
     }
 
-    onOpen0(onOpen) {
-        this.onOpen = onOpen;
+    onOpen(onOpen) {
+        this.#onOpen = onOpen;
         return this;
     }
 
     cancelReconnect() {
-        if (this.reconnectTimeout != null) {
-            clearTimeout(this.reconnectTimeout);
-            this.reconnectTimeout = null;
+        if (this.#reconnectTimeout != null) {
+            clearTimeout(this.#reconnectTimeout);
+            this.#reconnectTimeout = null;
         }
     }
 
@@ -45,7 +45,7 @@ class ScxSocketClient extends PingPongManager {
         }
         //关闭上一次连接
         this.close();
-        this.webSocket = new WebSocket(this.connectOptions.uri, this.connectOptions.protocols);
+        this.webSocket = new WebSocket(this.#connectOptions.uri, this.#connectOptions.protocols);
         this.webSocket.binaryType = "arraybuffer";
 
         this.webSocket.onopen = (o) => {
@@ -73,14 +73,14 @@ class ScxSocketClient extends PingPongManager {
 
     reconnect() {
         //如果当前已经存在一个重连进程 则不进行重连
-        if (this.reconnectTimeout != null) {
+        if (this.#reconnectTimeout != null) {
             return;
         }
         console.warn("WebSocket 重连中... " + new Date());
-        this.reconnectTimeout = setTimeout(() => {  //没连接上会一直重连，设置延迟为5000毫秒避免请求过多
-            this.reconnectTimeout = null;
+        this.#reconnectTimeout = setTimeout(() => {  //没连接上会一直重连，设置延迟为5000毫秒避免请求过多
+            this.#reconnectTimeout = null;
             this.connect();
-        }, this.clientOptions.getReconnectTimeout());
+        }, this.#clientOptions.getReconnectTimeout());
     }
 
     close() {
@@ -90,7 +90,7 @@ class ScxSocketClient extends PingPongManager {
     }
 
     clientID0() {
-        return this.clientID;
+        return this.#clientID;
     }
 
     doPingTimeout() {
@@ -99,13 +99,13 @@ class ScxSocketClient extends PingPongManager {
     }
 
     callOnOpen(v) {
-        if (this.onOpen != null) {
+        if (this.#onOpen != null) {
             this.onOpen(v);
         }
     }
 
     callOnOpenAsync(v) {
-        if (this.onOpen != null) {
+        if (this.#onOpen != null) {
             setTimeout(() => this.onOpen(v));
         }
     }

@@ -25,7 +25,7 @@ class EventManager extends ScxSocketBase {
         this.#onClose = onClose;
     }
 
-    onError0(onError) {
+    onError(onError) {
         this.#onError = onError;
     }
 

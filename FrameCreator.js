@@ -1,12 +1,13 @@
 import {ScxSocketFrame} from "./ScxSocketFrame.js";
 import {ACK, MESSAGE, PING, PONG, RESPONSE} from "./ScxSocketFrameType.js";
+import {AtomicInteger} from "./AtomicInteger.js";
 
 class FrameCreator {
 
     seqID;
 
     constructor() {
-        this.seqID = 0;
+        this.seqID = new AtomicInteger(0);
     }
 
     static createPingFrame() {
@@ -31,7 +32,7 @@ class FrameCreator {
 
     createBaseFrame(content, options) {
         let baseFrame = new ScxSocketFrame();
-        baseFrame.seq_id = this.seqID++;
+        baseFrame.seq_id = this.seqID.getAndIncrement();
         baseFrame.now = new Date().getTime();
         baseFrame.need_ack = options.getNeedAck();
         baseFrame.payload = content;

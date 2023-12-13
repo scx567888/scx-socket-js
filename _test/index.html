@@ -90,7 +90,7 @@
     //        }
     //    }
 
-    c.onOpen = () => {
+    c.onOpen(() => {
         console.log("open");
         setInterval(() => {
             c.send1(n++ + "", new SendOptions().setNeedAck(true));
@@ -101,19 +101,19 @@
         //            c.send(n++ + "", new SendOptions().setNeedAck(true));
         //        }
         //    }
-    };
+    });
 
-    c.onMessage = (m) => {
+    c.onMessage((m) => {
         boxArr[m].fill();
-    };
+    });
 
-    c.onClose = () => {
+    c.onClose(() => {
 
-    };
+    });
 
-    c.onError = () => {
+    c.onError(() => {
 
-    };
+    });
 
     btn1.addEventListener("click", () => {
         // for (let i = 0; i < 10; i++) {
