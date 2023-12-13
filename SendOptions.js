@@ -1,55 +1,56 @@
 class SendOptions {
 
-    needAck;
+    #needAck;
 
-    maxResendTimes;
+    #maxResendTimes;
 
-    maxResendDelayed;
+    #maxResendDelayed;
 
-    giveUpIfReachMaxResendTimes;
+    #giveUpIfReachMaxResendTimes;
 
     constructor() {
-        this.needAck = true;
-        this.maxResendTimes = 3;
-        this.maxResendDelayed = 1000 * 10;
-        this.giveUpIfReachMaxResendTimes = true;
+        this.#needAck = true;
+        this.#maxResendTimes = 3;
+        this.#maxResendDelayed = 1000 * 10;
+        this.#giveUpIfReachMaxResendTimes = true;
     }
 
     getNeedAck() {
-        return this.needAck;
+        return this.#needAck;
     }
 
     setNeedAck(needAck) {
-        this.needAck = needAck;
+        this.#needAck = needAck;
         return this;
     }
 
     getMaxResendTimes() {
-        return this.maxResendTimes;
+        return this.#maxResendTimes;
     }
 
     setMaxResendTimes(maxResendTimes) {
-        this.maxResendTimes = maxResendTimes;
+        this.#maxResendTimes = maxResendTimes;
         return this;
     }
 
     getMaxResendDelayed() {
-        return this.maxResendDelayed;
+        return this.#maxResendDelayed;
     }
 
     setMaxResendDelayed(maxDelayed) {
-        this.maxResendDelayed = maxDelayed;
+        this.#maxResendDelayed = maxDelayed;
         return this;
     }
 
     getGiveUpIfReachMaxResendTimes() {
-        return this.giveUpIfReachMaxResendTimes;
+        return this.#giveUpIfReachMaxResendTimes;
     }
 
     setGiveUpIfReachMaxResendTimes(giveUpIfReachMaxResendTimes) {
-        this.giveUpIfReachMaxResendTimes = giveUpIfReachMaxResendTimes;
+        this.#giveUpIfReachMaxResendTimes = giveUpIfReachMaxResendTimes;
         return this;
     }
+    
 }
 
 
