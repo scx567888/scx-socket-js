@@ -4,8 +4,8 @@ import {PING_FRAME, PONG_FRAME} from "./FrameCreator.js";
 
 class PingPongManager extends ScxSocket {
 
-    ping;
-    pingTimeout;
+    #ping;
+    #pingTimeout;
 
     constructor(options) {
         super(options);
@@ -13,28 +13,28 @@ class PingPongManager extends ScxSocket {
 
     startPingTimeout() {
         this.cancelPingTimeout();
-        this.pingTimeout = setTimeout(() => this.doPingTimeout(), this.options.getPingTimeout() + this.options.getPingInterval());
+        this.#pingTimeout = setTimeout(() => this.doPingTimeout(), this.options.getPingTimeout() + this.options.getPingInterval());
     }
 
     cancelPingTimeout() {
-        if (this.pingTimeout != null) {
-            clearTimeout(this.pingTimeout);
-            this.pingTimeout = null;
+        if (this.#pingTimeout != null) {
+            clearTimeout(this.#pingTimeout);
+            this.#pingTimeout = null;
         }
     }
 
     startPing() {
         this.cancelPing();
-        this.ping = setTimeout(() => {
+        this.#ping = setTimeout(() => {
             this.sendPing();
             this.startPing();
         }, this.options.getPingInterval());
     }
 
     cancelPing() {
-        if (this.ping != null) {
-            clearTimeout(this.ping);
-            this.ping = null;
+        if (this.#ping != null) {
+            clearTimeout(this.#ping);
+            this.#ping = null;
         }
     }
 

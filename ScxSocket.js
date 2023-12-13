@@ -1,7 +1,6 @@
 import {SendTask} from "./SendTask.js";
 import {EventManager} from "./EventManager.js";
 
-//todo 同步完成
 class ScxSocket extends EventManager {
 
     sendTaskMap;

@@ -48,7 +48,7 @@ class ScxSocketBase {
     }
 
     sendAck(ack_id) {
-        let ackFrame= FrameCreator.createAckFrame(ack_id);
+        let ackFrame = FrameCreator.createAckFrame(ack_id);
         this.webSocket.send(ackFrame.toJson());
     }
 
