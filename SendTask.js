@@ -22,6 +22,10 @@ class SendTask {
         if (this.#scxSocket.isClosed()) {
             return;
         }
+        //当前已经存在一个 发送中(并未完成发送) 的任务
+        if (this.#sendFuture != null) {
+            return;
+        }
         //超过最大发送次数
         if (this.#sendTimes.get() > this.#options.getMaxResendTimes()) {
             if (this.#options.getGiveUpIfReachMaxResendTimes()) {
@@ -30,15 +34,20 @@ class SendTask {
             return;
         }
         //根据不同序列化配置发送不同消息
+        try {
+            this.#sendFuture = true;
+            this.#scxSocket.webSocket.send(this.#socketFrame.toJson());
+            let currentSendTime = this.#sendTimes.getAndIncrement();
+            //当需要 ack 时 创建 重复发送 延时
+            if (this.#options.getNeedAck()) {
+                this.#resendThread = setTimeout(() => this.start(), Math.max(getDelayed(currentSendTime), this.#options.getMaxResendDelayed()));
+            } else {
+                this.clear();
+            }
+        } catch (e) {
 
-        this.#scxSocket.webSocket.send(this.#socketFrame.toJson());
-
-        let currentSendTime = this.#sendTimes.getAndIncrement();
-        //当需要 ack 时 创建 重复发送 延时
-        if (this.#options.getNeedAck()) {
-            this.#resendThread = setTimeout(() => this.start(), Math.max(getDelayed(currentSendTime), this.#options.getMaxResendDelayed()));
-        } else {
-            this.clear();
+        } finally {
+            this.#sendFuture = null;
         }
 
     }
@@ -67,7 +76,9 @@ class SendTask {
     }
 
     removeConnectFuture() {
-
+        if (this.#sendFuture != null) {
+            this.#sendFuture = null;
+        }
     }
 
 }
