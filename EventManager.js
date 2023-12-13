@@ -1,102 +1,90 @@
 import {ScxSocketBase} from "./ScxSocketBase.js";
 import {DuplicateFrameChecker} from "./DuplicateFrameChecker.js";
 
-//todo 同步完成 23/12/01
 class EventManager extends ScxSocketBase {
 
     duplicateFrameChecker;
-    eventHandlerMap;
-    responseCallbackMap;
-    onMessage;
-    onClose;
-    onError;
+    #eventHandlerMap;
+    #responseCallbackMap;
+    #onMessage;
+    #onClose;
+    #onError;
 
     constructor(options) {
         super(options);
         this.duplicateFrameChecker = new DuplicateFrameChecker(options.getSeqIDClearTimeout());
-        this.eventHandlerMap = new Map();
-        this.responseCallbackMap = new Map();
+        this.#eventHandlerMap = new Map();
+        this.#responseCallbackMap = new Map();
     }
 
-    onMessage0(onMessage) {
-        this.onMessage = onMessage;
-        return this;
+    onMessage(onMessage) {
+        this.#onMessage = onMessage;
     }
 
-    onClose0(onClose) {
-        this.onClose = onClose;
-        return this;
+    onClose(onClose) {
+        this.#onClose = onClose;
     }
 
     onError0(onError) {
-        this.onError = onError;
-        return this;
+        this.#onError = onError;
     }
 
     onEvent(eventName, onEvent) {
-        this.eventHandlerMap.put(eventName, new EventHandler(onEvent));
-        return this;
-    }
-
-    onEvent(eventName, onEvent) {
-        this.eventHandlerMap.put(eventName, new EventHandler(onEvent));
-        return this;
-    }
-
-    onEvent(eventName, onEvent) {
-        this.eventHandlerMap.put(eventName, new EventHandler(onEvent));
-        return this;
+        this.#eventHandlerMap.set(eventName, onEvent);
     }
 
     removeEvent(eventName) {
-        this.eventHandlerMap.remove(eventName);
-        return this;
+        this.#eventHandlerMap.delete(eventName);
     }
 
     callOnMessage(message) {
-        if (this.onMessage != null) {
-            this.onMessage(message);
+        if (this.#onMessage != null) {
+            this.#onMessage(message);
         }
     }
 
     callOnClose(v) {
-        if (this.onClose != null) {
-            this.onClose(v);
+        if (this.#onClose != null) {
+            this.#onClose(v);
         }
     }
 
     callOnError(e) {
-        if (this.onError != null) {
-            this.onError(e);
+        if (this.#onError != null) {
+            this.#onError(e);
         }
     }
 
     callOnMessageAsync(message) {
-        if (this.onMessage != null) {
-            setTimeout(() => this.onMessage(message));
+        if (this.#onMessage != null) {
+            setTimeout(() => this.#onMessage(message));
         }
     }
 
     callOnCloseAsync(v) {
-        if (this.onClose != null) {
-            setTimeout(() => this.onClose(v));
+        if (this.#onClose != null) {
+            setTimeout(() => this.#onClose(v));
         }
     }
 
     callOnErrorAsync(e) {
-        if (this.onError != null) {
-            setTimeout(() => this.onError(e));
+        if (this.#onError != null) {
+            setTimeout(() => this.#onError(e));
         }
     }
 
     callOnMessageWithCheckDuplicateAsync(socketFrame) {
-        if (this.onMessage != null && this.duplicateFrameChecker.checkDuplicate(socketFrame)) {
-            setTimeout(() => this.onMessage(socketFrame.payload));
+        if (this.#onMessage != null && this.duplicateFrameChecker.checkDuplicate(socketFrame)) {
+            setTimeout(() => this.#onMessage(socketFrame.payload));
         }
     }
 
+    /**
+     * todo
+     * @param socketFrame
+     */
     callOnEventWithCheckDuplicateAsync(socketFrame) {
-        let eventHandler = this.eventHandlerMap.get(socketFrame.event_name);
+        let eventHandler = this.#eventHandlerMap.get(socketFrame.event_name);
         if (eventHandler != null && this.duplicateFrameChecker.checkDuplicate(socketFrame)) {
             setTimeout(() => {
                 if (eventHandler.type === 0) {
@@ -126,20 +114,22 @@ class EventManager extends ScxSocketBase {
 
 
     setResponseCallback(socketFrame, responseCallback) {
-        this.responseCallbackMap.set(socketFrame.seq_id, responseCallback);
+        this.#responseCallbackMap.set(socketFrame.seq_id, responseCallback);
     }
 
     callResponseCallback(socketFrame) {
-        let responseCallback = this.responseCallbackMap.delete(socketFrame.ack_id);
+        let responseCallback = this.#responseCallbackMap.get(socketFrame.ack_id);
+        this.#responseCallbackMap.delete(socketFrame.ack_id);
         if (responseCallback != null) {
-            responseCallback.accept(socketFrame.payload);
+            responseCallback(socketFrame.payload);
         }
     }
 
     callResponseCallbackAsync(socketFrame) {
-        let responseCallback = this.responseCallbackMap.remove(socketFrame.ack_id);
+        let responseCallback = this.#responseCallbackMap.get(socketFrame.ack_id);
+        this.#responseCallbackMap.delete(socketFrame.ack_id);
         if (responseCallback != null) {
-            setTimeout(() => responseCallback.accept(socketFrame.payload));
+            setTimeout(() => responseCallback(socketFrame.payload));
         }
     }
 
