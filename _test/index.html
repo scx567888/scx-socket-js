@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>TEST</title>
+    <style>
+        #app {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            background: #2b2b2b;
+        }
+
+        #bar {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: rgba(100, 100, 100, 0.8);
+            box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px 0;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            column-gap: 10px;
+        }
+
+        #canvas1 {
+            margin: 20px;
+            box-sizing: border-box;
+            border: 1px solid #adadad;
+            display: flex;
+            flex-wrap: wrap;
+            row-gap: 1px;
+            column-gap: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="bar">
+        <button id="btn1">连接</button>
+        <button id="btn2">关闭</button>
+    </div>
+    <canvas id="canvas1" height="2200" width="1400"></canvas>
+</div>
+
+<script type="module">
+    import {ScxSocketClient} from "../ScxSocketClient.js";
+    import {BoxRender} from "./box-render.js";
+    import {SendOptions} from "../SendOptions.js";
+
+    //获取元素
+    let btn1 = document.querySelector("#btn1");
+    let btn2 = document.querySelector("#btn2");
+    let canvas1 = document.querySelector("#canvas1");
+
+    const ctx = canvas1.getContext("2d");
+
+    //绘制盒子
+    let allWidth = 1400;
+    let boxSize = 10;
+
+    const boxArr = [];
+
+    for (let i = 0; i < 1400 * 2200 / 100; i++) {
+        let r = i * boxSize;
+        let x = Math.floor(r % allWidth);
+        let y = Math.floor(r / allWidth) * boxSize;
+        let b = new BoxRender(x, y, boxSize, ctx);
+        boxArr.push(b);
+        b.line();
+    }
+
+    //创建 客户端
+    let c = new ScxSocketClient("ws://127.0.0.1:8990/test");
+
+    let n = 0;
+
+    // for (let i = 0; i < 140; i++) {
+    //
+    //        for (let j = 0; j < 220; j++) {
+    //            c.send(n++ + "", new SendOptions().setNeedAck(true));
+    //        }
+    //    }
+
+    c.onConnect((e) => {
+        console.log("open");
+        setInterval(() => {
+            e.send1(n++ + "", new SendOptions().setNeedAck(true));
+            console.log(123);
+        }, 100);
+        // for (let i = 0; i < 140; i++) {
+        //       
+        //        for (let j = 0; j < 220; j++) {
+        //            c.send(n++ + "", new SendOptions().setNeedAck(true));
+        //        }
+        //    }
+        e.onMessage((m) => {
+            boxArr[m].fill();
+        });
+    });
+
+    // c.onMessage((m) => {
+    //     boxArr[m].fill();
+    // });
+    //
+    // c.onClose(() => {
+    //
+    // });
+    //
+    // c.onError(() => {
+    //
+    // });
+
+    btn1.addEventListener("click", () => {
+        // for (let i = 0; i < 10; i++) {
+        c.connect();
+        // }
+    });
+
+    btn2.addEventListener("click", () => {
+        c.close();
+    });
+
+    c.connect();
+
+</script>
+</body>
+</html>

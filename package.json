@@ -1,0 +1,11 @@
+{
+  "name": "scx-socket",
+  "version": "0.0.1",
+  "description": "SCX Socket",
+  "type": "module",
+  "author": "scx567888",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scx567888/scx-socket-js.git"
+  }
+}
